@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Web 3.0 Blockchain Currency Demo</title>
+<style>
+    body {
+        font-family: Arial;
+        background: #f2f2f2;
+        padding: 20px;
+    }
+    .container {
+        max-width: 500px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px #ccc;
+    }
+    button {
+        padding: 10px 20px;
+        background: #4CAF50;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🌐 Web 3.0 Blockchain Currency</h2>
+
+    <button id="connectBtn">Connect MetaMask</button>
+
+    <p><strong>Account:</strong> <span id="account">Not Connected</span></p>
+    <p><strong>ETH Balance:</strong> <span id="balance">0</span></p>
+
+    <hr>
+
+    <h3>Send ETH</h3>
+    <input type="text" id="toAddress" placeholder="Receiver Address (0x...)">
+    <input type="text" id="amount" placeholder="Amount in ETH">
+
+    <button id="sendBtn">Send</button>
+
+    <p id="status"></p>
+</div>
+
+<script>
+// Connect MetaMask
+document.getElementById("connectBtn").onclick = async () => {
+    if (window.ethereum) {
+        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+        const account = accounts[0];
+        document.getElementById("account").innerText = account;
+
+        // Fetch ETH balance
+        const balance = await ethereum.request({
+            method: "eth_getBalance",
+            params: [account, "latest"]
+        });
+
+        document.getElementById("balance").innerText =
+            (parseInt(balance, 16) / 1e18).toFixed(5) + " ETH";
+    } else {
+        alert("MetaMask not installed!");
+    }
+};
+
+// Send ETH
+document.getElementById("sendBtn").onclick = async () => {
+    const to = document.getElementById("toAddress").value;
+    const amount = document.getElementById("amount").value;
+    const status = document.getElementById("status");
+
+    if (!window.ethereum) {
+        alert("MetaMask not installed!");
+        return;
+    }
+    try {
+    const tx = await ethereum.request({
+        method: "eth_sendTransaction",
+        params: [{
+            from: document.getElementById("account").innerText,
+            to: to,
+            value: "0x" + (amount * 1e18).toString(16)
+        }]
+    });
+
+    status.innerText = "Transaction sent! Hash: " + tx;
+} 
+catch (error) {
+    status.innerText = "Error: " + error.message;
+}
+
+    
